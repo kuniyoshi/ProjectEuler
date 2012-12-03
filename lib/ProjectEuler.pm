@@ -1,18 +1,11 @@
 package ProjectEuler;
-use Mojo::Base 'Mojolicious';
+use Mojo::Base "Mojolicious";
 
-# This method will run once at server start
 sub startup {
     my $self = shift;
+    my $r    = $self->routes;
 
-    # Documentation browser under "/perldoc"
-    $self->plugin( 'PODRenderer' );
-
-    # Router
-    my $r = $self->routes;
-
-    # Normal route to controller
-    $r->get( '/' )->to( 'example#welcome' );
+    $r->get( q{/} )->to( "homepage#index" );
 }
 
 1;

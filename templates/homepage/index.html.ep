@@ -1,0 +1,21 @@
+% layout 'default';
+% title 'Welcome';
+<h2><%= $message %></h2>
+This page was generated from the template "templates/example/welcome.html.ep"
+and the layout "templates/layouts/default.html.ep",
+<a href="<%== url_for "/abc" %>">click here</a> to reload the page or
+<a href="/index.html">here</a> to move forward to a static page.
+
+<table>
+    <tbody>
+<% foreach my $cols_ref ( @{ $rows_ref } ) { %>
+        <tr>
+<%   foreach my $col ( @{ $cols_ref } ) { %>a
+            <td><%= $col %></td>
+<%   } %>
+        </tr>
+<% } %>
+    </tbody>
+</table>
+
+
