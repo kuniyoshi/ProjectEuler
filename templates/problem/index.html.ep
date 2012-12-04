@@ -1,0 +1,18 @@
+% layout 'default';
+% title $problem->{title};
+
+<h1><%= $problem->{title} %></h1>
+<div>
+    <%= $problem->{problem} %>
+</div>
+<div>
+    <form method="post" action="answer">
+        <input type="hidden" name="number" value="<%= $problem->{number} %>" />
+        <textarea name="answer" cols="80" rows="40"></textarea>
+        <input type="submit" value="calc" />
+    </form>
+</div>
+<div>
+    <a href="<%== url_for $problem->{source} %>">source</a>
+    answer: <%= $problem->{answer} %>
+</div>

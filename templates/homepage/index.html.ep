@@ -1,5 +1,5 @@
 % layout 'default';
-% title 'Welcome';
+% title 'Welcome to Project Euler';
 <h2><%= $message %></h2>
 This page was generated from the template "templates/example/welcome.html.ep"
 and the layout "templates/layouts/default.html.ep",
@@ -8,10 +8,10 @@ and the layout "templates/layouts/default.html.ep",
 
 <table>
     <tbody>
-<% foreach my $cols_ref ( @{ $rows_ref } ) { %>
+<% foreach my $problems ( @{ $rows } ) { %>
         <tr>
-<%   foreach my $col ( @{ $cols_ref } ) { %>a
-            <td><%= $col %></td>
+<%   foreach my $problem ( @{ $problems } ) { %>
+            <td><a href="<%== url_for "/problem/$problem->{number}" %>"><%= $problem->{number} %></a></td>
 <%   } %>
         </tr>
 <% } %>

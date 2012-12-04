@@ -1,0 +1,19 @@
+% layout 'default';
+% title $problem->{title};
+
+<h1><%= $problem->{title} %></h1>
+<div>
+    <%= $problem->{problem} %>
+</div>
+<div>
+    <% if ( $does_correct ) { %>
+        pass with [<%= $result %>].
+    <% } else { %>
+        fail with [<%= $result %>].
+    <% } %>
+</div>
+<div>
+    <a href="<%== url_for $problem->{source} %>">source</a>
+    answer: <%= $problem->{answer} %>
+</div>
+
