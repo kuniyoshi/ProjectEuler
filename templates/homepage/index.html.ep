@@ -11,7 +11,12 @@ and the layout "templates/layouts/default.html.ep",
 <% foreach my $problems ( @{ $rows } ) { %>
         <tr>
 <%   foreach my $problem ( @{ $problems } ) { %>
-            <td><a href="<%== url_for "/problem/$problem->{number}" %>"><%= $problem->{number} %></a></td>
+            <td>
+                <a href="<%== url_for "/problem/$problem->{number}" %>"><%= $problem->{number} %></a>
+<%     foreach my $name ( sort keys %{ $problem->{team} || { } } ) { %>
+                <%= $name %>
+<%     } %>
+            </td>
 <%   } %>
         </tr>
 <% } %>

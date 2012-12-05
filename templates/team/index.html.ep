@@ -1,0 +1,15 @@
+% layout 'default';
+% title "Welcome";
+
+<h1>Welcome</h1>
+<form method="post" action="./">
+    <input type="text" name="team" />
+    <input type="submit" value="join" />
+</form>
+
+<script>
+    $( "form" ).submit( function ( e ) {
+        var $form = $( this );
+        $form.attr( { action: $form.attr( "action" ) + $form.find( "input[name=team]" ).val( ) } );
+    } );
+</script>

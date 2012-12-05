@@ -2,13 +2,15 @@
 % title $problem->{title};
 
 <h1><%= $problem->{title} %></h1>
+<p>You <%= $result ? "passed" : "failed" %> this before</p>
+<p><% if ( $team ) { %>You has joined the <%= $team->{name} %><% } %></p>
 <div>
     <%= $problem->{problem} %>
 </div>
 <div>
     <form method="post" action="answer">
         <input type="hidden" name="number" value="<%= $problem->{number} %>" />
-        <textarea name="answer" cols="80" rows="40"></textarea>
+        <textarea name="answer" cols="80" rows="40"><%= $snippet %></textarea>
         <input type="submit" value="calc" />
     </form>
 </div>

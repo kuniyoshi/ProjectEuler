@@ -4,9 +4,11 @@ use Mojo::Base "Mojolicious::Controller";
 use Readonly;
 use File::Temp qw( tempfile );
 use Data::Problem;
+use Data::Session;
+use Data::Team;
 
 Readonly my $TEMPLATE => "project_euler_XXXXXX";
-Readonly my $TMPDIR   => "/tmp";
+Readonly my $TIMEOUT  => 5;
 
 sub find_problem {
     my $self    = shift;
@@ -18,14 +20,35 @@ sub find_problem {
     return $problem;
 }
 
+sub get_session {
+    my $self = shift;
+    return Data::Session->new->collection->find_one(
+        { digest => $self->signed_cookie( "d" ) },
+    );
+}
+
 sub index {
     my $self    = shift;
     my $number  = $self->stash( "number" )
         or return $self->render_not_found;
     my $problem = $self->find_problem( $number )
         or return $self->render_not_found;
+    my( $team, $result, $snippet );
 
-    $self->stash( problem => $problem );
+    my $session = $self->get_session;
+
+    if ( $session ) {
+        $team    = Data::Session->get_team( $session );
+        $result  = $team->{answer}{ $problem->{number} }{result};
+        $snippet = $team->{answer}{ $problem->{number} }{snippet};
+    }
+
+    $self->stash(
+        problem => $problem,
+        result  => $result,
+        snippet => $snippet,
+        team    => $team,
+    );
     $self->render( template => "problem/index" );
 }
 
@@ -34,20 +57,39 @@ sub answer {
     my $snippet = $self->req->param( "answer" );
     my $number  = $self->req->param( "number" );
     my $problem = $self->find_problem( $number );
-    my $does_correct;
+    my( $result, $does_correct );
 
     $snippet =~ s{\r\n}{\n}g;
 
-    my( $FH,  $filename ) = tempfile( $TEMPLATE, DIR => $TMPDIR );
-warn "filename: $filename";
-    print { $FH } $snippet, "\n";
-    close $FH;
-    system( "chmod", "+x", $filename ) == 0
-        or die "Could not chmod +x $filename: $!";
-    chomp( my $result = `$filename` );
+    eval {
+        local $SIG{ALRM} = sub { die "too long.\n" };
+        alarm $TIMEOUT;
+
+        my( $FH,  $filename ) = tempfile( $TEMPLATE, TMPDIR => 1, UNLINK => 1 );
+        print { $FH } $snippet, "\n";
+        close $FH;
+        system( "chmod", "+x", $filename ) == 0
+            or die "Could not chmod +x $filename: $!";
+        chomp( $result = `$filename` );
+
+        alarm 0;
+    };
+
+    if ( my $e = $@ ) {
+        warn $e;
+    }
 
     if ( $result eq $problem->{answer} ) {
         $does_correct = 1;
+    }
+
+    if ( my $session = $self->get_session ) {
+        $self->record(
+            problem      => $problem,
+            snippet      => $snippet,
+            does_correct => $does_correct,
+            team         => Data::Session->get_team( $session ),
+        );
     }
 
     $self->stash(
@@ -56,6 +98,18 @@ warn "filename: $filename";
         does_correct => $does_correct,
     );
     $self->render( template => "problem/answer" );
+}
+
+sub record {
+    my $self  = shift;
+    my( $problem, $snippet, $result, $team )
+        = @{ { @_ } }{ qw( problem snippet does_correct team ) };
+    @{ $team->{answer}{ $problem->{number} } }{ qw( snipet result ) }
+        = ( $snippet, $result );
+    Data::Team->new->collection->update(
+        { name => $team->{name} },
+        $team,
+    );
 }
 
 1;
