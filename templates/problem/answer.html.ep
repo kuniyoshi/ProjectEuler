@@ -1,19 +1,14 @@
 % layout 'default';
 % title $problem->{title};
 
-<h1><%= $problem->{title} %></h1>
-<div>
-    <%= $problem->{problem} %>
+<div class="row-fluid">
+    <div class="span8 offset2">
+        <h1><%= $problem->{title} %></h1>
+        <p class="lead"><%= $problem->{problem} %></p>
+<% if ( $does_correct ) { %>
+        <div class="alert alert-success">Pass with [<%= $result %>].</div>
+<% } else { %>
+        <div class="alert alert-error">Fail with [<%= $result %>].</div>
+<% } %>
+    </div>
 </div>
-<div>
-    <% if ( $does_correct ) { %>
-        pass with [<%= $result %>].
-    <% } else { %>
-        fail with [<%= $result %>].
-    <% } %>
-</div>
-<div>
-    <a href="<%== url_for $problem->{source} %>">source</a>
-    answer: <%= $problem->{answer} %>
-</div>
-

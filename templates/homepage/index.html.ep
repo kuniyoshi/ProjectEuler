@@ -1,21 +1,25 @@
 % layout 'default';
 % title 'Welcome to Project Euler';
-<h2><%= $message %></h2>
-This page was generated from the template "templates/example/welcome.html.ep"
-and the layout "templates/layouts/default.html.ep",
-<a href="<%== url_for "/abc" %>">click here</a> to reload the page or
-<a href="/index.html">here</a> to move forward to a static page.
 
-<table>
+<h1>Problems</h1>
+
+<table class="table table-bordered">
     <tbody>
 <% foreach my $problems ( @{ $rows } ) { %>
         <tr>
 <%   foreach my $problem ( @{ $problems } ) { %>
             <td>
-                <a href="<%== url_for "/problem/$problem->{number}" %>"><%= $problem->{number} %></a>
-<%     foreach my $name ( sort keys %{ $problem->{team} || { } } ) { %>
-                <%= $name %>
+<%     if ( $problem->{tried} ) { %>
+                <div>
+<%       if ( my $teams = $problem->{passage} ) { %>
+                    <span class="badge badge-success" title="<%= join q{,}, @{ $teams } %>"><%= @{ $teams } %></span>
 <%     } %>
+<%       if ( my $teams = $problem->{failure} ) { %>
+                    <span class="badge badge-important" title="<%= join q{,}, @{ $teams } %>"><%= @{ $teams } %></span>
+                </div>
+<%       } %>
+<%     } %>
+                <div class="btn-link" title="<%= $problem->{title} %>"><a href="<%== url_for "/problem/$problem->{number}" %>" title="<%= $problem->{title} %>"><%= $problem->{number} %></a></div>
             </td>
 <%   } %>
         </tr>
@@ -23,4 +27,16 @@ and the layout "templates/layouts/default.html.ep",
     </tbody>
 </table>
 
+<% foreach my $team ( @{ $teams } ) { %>
+<span class="label"><%= $team->{name} %></span>
+<span class="badge badge-success"><%= $team->{count}{passage} %></span>
+<span class="badge badge-warning"><%= $team->{count}{left} %></span>
+<span class="badge badge-important"><%= $team->{count}{failure} %></span>
+<div class="progress">
+    <div class="bar bar-success" style="width: <%= $team->{percentage}{passage} %>%"></div>
+    <div class="bar bar-danger" style="width: <%= $team->{percentage}{failure} %>%"></div>
+</div>
+<% } %>
+
+<p class="lead">Your code should print the answer to the STDOUT.  If the answer is a scalar, then simply print it.  If the answer is a list, then join each element by ','.</p>
 

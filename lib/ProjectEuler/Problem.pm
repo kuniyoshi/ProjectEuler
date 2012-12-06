@@ -33,7 +33,10 @@ sub index {
         or return $self->render_not_found;
     my $problem = $self->find_problem( $number )
         or return $self->render_not_found;
-    my( $team, $result, $snippet );
+    my( $team, $result, $snippet, $tried );
+
+    my $prebious_problem = $self->find_problem( $number - 1 );
+    my $next_problem     = $self->find_problem( $number + 1 );
 
     my $session = $self->get_session;
 
@@ -41,13 +44,17 @@ sub index {
         $team    = Data::Session->get_team( $session );
         $result  = $team->{answer}{ $problem->{number} }{result};
         $snippet = $team->{answer}{ $problem->{number} }{snippet};
+        $tried   = !!$snippet;
     }
 
     $self->stash(
-        problem => $problem,
-        result  => $result,
-        snippet => $snippet,
-        team    => $team,
+        prebious_problem => $prebious_problem,
+        next_problem     => $next_problem,
+        problem          => $problem,
+        result           => $result,
+        snippet          => $snippet,
+        tried            => $tried,
+        team             => $team,
     );
     $self->render( template => "problem/index" );
 }
@@ -104,7 +111,7 @@ sub record {
     my $self  = shift;
     my( $problem, $snippet, $result, $team )
         = @{ { @_ } }{ qw( problem snippet does_correct team ) };
-    @{ $team->{answer}{ $problem->{number} } }{ qw( snipet result ) }
+    @{ $team->{answer}{ $problem->{number} } }{ qw( snippet result ) }
         = ( $snippet, $result );
     Data::Team->new->collection->update(
         { name => $team->{name} },

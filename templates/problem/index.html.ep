@@ -1,20 +1,28 @@
 % layout 'default';
 % title $problem->{title};
 
-<h1><%= $problem->{title} %></h1>
-<p>You <%= $result ? "passed" : "failed" %> this before</p>
-<p><% if ( $team ) { %>You has joined the <%= $team->{name} %><% } %></p>
-<div>
-    <%= $problem->{problem} %>
+<div class="row-fluid">
+    <p><span class="label"><% if ( $team ) { %>You has joined the <%= $team->{name} %><% } %></span></p>
+    <p><span class="label<%= $tried && $result ? " label-success" : $tried ? " label-important" : "" %>">You <%= $tried && $result ? "passed" : $tried ? "failed" : "are not seen" %> this before</span></p>
+    <h1><%= $problem->{title} %></h1>
+    <ul class="pager">
+        <li class="previous<%= $prebious_problem ? "" : " disabled" %>"><a href="<%== url_for $prebious_problem->{number} %>" title="<%= $prebious_problem->{title} %>">Previous</a></li>
+        <li class="next<%= $next_problem ? "" : " disabled" %>"><a href="<%== url_for $next_problem->{number} %>" title="<%= $next_problem->{title} %>">Next</a></li>
+    </ul>
 </div>
-<div>
-    <form method="post" action="answer">
-        <input type="hidden" name="number" value="<%= $problem->{number} %>" />
-        <textarea name="answer" cols="80" rows="40"><%= $snippet %></textarea>
-        <input type="submit" value="calc" />
-    </form>
+
+<div class="row-fluid">
+    <div class="span6">
+        <form method="post" action="answer" class="form-horizontal">
+            <input type="hidden" name="number" value="<%= $problem->{number} %>" />
+            <pre><textarea name="answer" cols="80" rows="40" class="span12" placeholder="#!/bin/sh"><%= $snippet %></textarea></pre>
+            <button type="submit" class="btn btn-large">calc</button>
+        </form>
+    </div>
+    <div class="span6">
+        <p class="lead"><%= $problem->{problem} %></p>
+        <p class="lead"><a href="<%== url_for $problem->{source} %>">source</a></p>
+        <p class="lead">answer: <%= $problem->{answer} %></p>
+    </div>
 </div>
-<div>
-    <a href="<%== url_for $problem->{source} %>">source</a>
-    answer: <%= $problem->{answer} %>
-</div>
+

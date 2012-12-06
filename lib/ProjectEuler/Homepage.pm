@@ -1,7 +1,7 @@
 package ProjectEuler::Homepage;
 use Mojo::Base "Mojolicious::Controller";
 use Readonly;
-use List::Util qw( first );
+use List::Util qw( first max );
 use Data::Page;
 use Data::Problem;
 use Data::Team;
@@ -19,7 +19,10 @@ sub index {
 
         foreach my $number ( keys %{ $answer } ) {
             my $problem = first { $_->{number} == $number } @problems;
-            $problem->{team}{ $team->{name} } = $answer->{ $number }{result};
+            my $key     = $answer->{ $number }{result} ? "passage" : "failure";
+            $problem->{ $key } //= [ ];
+            push @{ $problem->{ $key } }, $team->{name};
+            $problem->{tried}++;
         }
     }
 
@@ -29,8 +32,33 @@ sub index {
         [ $page->splice( \@problems ) ];
     } ( $page->first_page .. $page->last_page );
 
-    $self->stash( message => "foobar" );
-    $self->stash( rows => \@rows );
+    my $problem_count = Data::Problem->new->collection->count;
+
+    foreach my $team ( @teams ) {
+        my %count = ( all => $problem_count );
+        $count{passage} = grep { $_->{result} } values %{ $team->{answer} || { } };
+        $count{failure} = grep { exists $_->{result} && !$_->{result} } values %{ $team->{answer} || { } };
+        $count{left} = $count{all} - $count{passage} - $count{failure};
+        $team->{count} = \%count;
+    }
+
+    my $max_solved_count = max(
+        map { $_->{count}{passage} + $_->{count}{failure} } @teams,
+    );
+
+    foreach my $team ( @teams ) {
+        my $count = $team->{count};
+        my %percentage = (
+            passage => int( $count->{passage} / $max_solved_count * 100 ),
+            failure => int( $count->{failure} / $max_solved_count * 100 ),
+        );
+        $team->{percentage} = \%percentage;
+    }
+
+    $self->stash(
+        rows  => \@rows,
+        teams => \@teams,
+    );
     $self->render( template => "homepage/index" );
 }
 

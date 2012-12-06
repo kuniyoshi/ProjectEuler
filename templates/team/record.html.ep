@@ -1,4 +1,26 @@
 % layout 'default';
 % title $team->{name};
 
-<h1><%= $team->{name} %></h1>
+<h1><%= $team->{name} %> Records</h1>
+
+<div class="row-fluid">
+    <dl class="dl-horizontal">
+        <dt>passage</dt>
+        <dd><span class="badge badge-success"><%= $count->{passage} %></span></dd>
+        <dt>failure</dt>
+        <dd><span class="badge badge-important"><%= $count->{failure} %></span></dd>
+        <dt>left</dt>
+        <dd><span class="badge"><%= $count->{left} %></span></dd>
+    </dl>
+</div>
+<h2>Answers</h2>
+<% foreach my $problem ( @{ $problems } ) { %>
+<h3><span class="label <%= $problem->{result} ? "label-success" : "label-important" %>"><%= $problem->{result} ? "success" : "failure" %></span><%= $problem->{title} %></h3>
+<div class="row-fluid">
+    <div class="span6">
+        <pre><%= $problem->{snippet} %></pre>
+    </div>
+    <div class="span6">
+        <p class="lead"><%= $problem->{problem} %></p>
+    </div>
+<% } %>

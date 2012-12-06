@@ -2,9 +2,9 @@
 % title "Welcome";
 
 <h1>Welcome</h1>
-<form method="post" action="./">
-    <input type="text" name="team" />
-    <input type="submit" value="join" />
+<form method="post" action="./" class="form-inline">
+    <input type="text" name="team" class="input-small" placeholder="team name" />
+    <button type="submit" class="btn">join</button>
 </form>
 
 <script>
