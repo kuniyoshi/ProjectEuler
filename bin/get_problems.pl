@@ -11,7 +11,7 @@ use Mojo::UserAgent;
 use MongoDB;
 
 my $client = MongoDB::MongoClient->new( host => "localhost", port => 27017 );
-my $database = $client->get_database( "problem_euler" );
+my $database = $client->get_database( "project_euler" );
 my $collection = $database->get_collection( "problem" );
 
 my $base = Mojo::URL->new(

@@ -18,6 +18,9 @@ ENVIRONMENT
 HOW TO RUN
 ==========
 
+- ensure mongodb is running
+- bin/get_problems.pl
+- bin/set_answer.pl data/answer
 - cpanm Mojolicious
 - morbo script/project_euler
 - GET http://localhost:3000/
