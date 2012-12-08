@@ -15,6 +15,13 @@ ENVIRONMENT
 - MongoDB
 - Bootstrap
 
+HOW TO RUN
+==========
+
+- cpanm Mojolicious
+- morbo script/project_euler
+- GET http://localhost:3000/
+
 SEE ALSO
 ========
 
