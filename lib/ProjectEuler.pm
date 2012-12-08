@@ -25,13 +25,16 @@ sub startup {
         },
     );
 
-    $r->get(  q{/}               )->to( "homepage#index" );
-    $r->get(  "/problem/:number" )->to( "problem#index" );
-    $r->post( "/problem/answer"  )->to( "problem#answer" );
-    $r->get(  "/team/"           )->to( "team#index" );
-    $r->get(  "/team/:name"      )->to( "team#record" );
-    $r->post( "/team/:name"      )->to( "team#join" );
-    $r->get(  "/session"         )->to( "session#index" );
+    $r->get(  q{/}                   )->to( "homepage#index" );
+    $r->get(  "/problem/:number"     )->to( "problem#index" );
+    $r->post( "/problem/answer"      )->to( "problem#answer" );
+    $r->get(  "/team/"               )->to( "team#index" );
+    $r->get(  "/team/:name"          )->to( "team#record" );
+    $r->post( "/team/:name"          )->to( "team#join" );
+    $r->get(  "/session"             )->to( "session#index" );
+    $r->get(  "/adm/problem/"        )->to( "adm-problem#index" );
+    $r->get(  "/adm/problem/:number" )->to( "adm-problem#view" );
+    $r->post( "/adm/problem/:number" )->to( "adm-problem#edit" );
 }
 
 1;

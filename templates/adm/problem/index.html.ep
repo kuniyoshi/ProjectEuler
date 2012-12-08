@@ -1,0 +1,9 @@
+% layout 'default';
+% title "View Problem";
+
+<h2>Problems</h2>
+<ul>
+<% foreach my $problem ( @{ $problems } ) { %>
+    <li><a href="<%== url_for $problem->{number} %>"><%= $problem->{title} %></a></li>
+<% } %>
+</ul>

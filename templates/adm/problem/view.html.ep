@@ -1,0 +1,16 @@
+% layout 'default';
+% title "View Problem";
+
+<div class="row-fluid">
+<form method="post">
+    <dl>
+        <dt>Title</dt>
+        <dd><input type="text" name="title" value="<%= $problem->{title} %>" class="span12" /></dd>
+        <dt>Problem</dt>
+        <dd><textarea name="problem" class="span12"><%= $problem->{problem} %></textarea></dd>
+        <dt>Answer</dt>
+        <dd><input type="text" name="answer" value="<%= $problem->{answer} %>" class="span6" /></dd>
+    </dl>
+    <button type="submit" class="btn btn-large">edit</button>
+</form>
+</div>
