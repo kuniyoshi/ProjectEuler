@@ -10,8 +10,22 @@ use Data::Page;
 
 my $client = MongoDB::MongoClient->new( host => "localhost", port => 27017 );
 my $database = $client->get_database( "problem_euler" );
-my $collection = $database->get_collection( "problem" );
+my $collection = $database->get_collection( "test" );
 
+my $bar = $collection->find_one( { foo => "bar" } );
+say Dumper $bar;
+
+$collection->update(
+    { foo => "bar" },
+    {
+        int( rand 10 ) => 3,
+    },
+    { upsert => 1 },
+);
+
+
+
+__END__
 my @problems = $collection->query->sort( { number => 1 } )->all;
 
 my $page = Data::Page->new( scalar( @problems ), 10, 1 );

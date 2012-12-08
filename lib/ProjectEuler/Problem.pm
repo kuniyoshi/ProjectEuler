@@ -3,45 +3,24 @@ use autodie qw( open close );
 use Mojo::Base "Mojolicious::Controller";
 use Readonly;
 use File::Temp qw( tempfile );
-use Data::Problem;
 use Data::Session;
 use Data::Team;
 
 Readonly my $TEMPLATE => "project_euler_XXXXXX";
 Readonly my $TIMEOUT  => 5;
 
-sub find_problem {
-    my $self    = shift;
-    my $number  = shift
-        or return;
-    my $problem = Data::Problem->new->collection->find_one( { number => int $number } )
-        or return;
-
-    return $problem;
-}
-
-sub get_session {
-    my $self = shift;
-    return Data::Session->new->collection->find_one(
-        { digest => $self->signed_cookie( "d" ) },
-    );
-}
-
 sub index {
     my $self    = shift;
-    my $number  = $self->stash( "number" )
-        or return $self->render_not_found;
-    my $problem = $self->find_problem( $number )
+    my $number  = $self->stash( "number" );
+    my $problem = $self->problem->find_one( { number => int $number } )
         or return $self->render_not_found;
     my( $team, $result, $snippet, $tried );
 
-    my $prebious_problem = $self->find_problem( $number - 1 );
-    my $next_problem     = $self->find_problem( $number + 1 );
+    my $prebious_problem = $self->problem->find_one( { number => $number - 1 } );
+    my $next_problem     = $self->problem->find_one( { number => $number + 1 } );
 
-    my $session = $self->get_session;
-
-    if ( $session ) {
-        $team    = Data::Session->get_team( $session );
+    if ( my $session = $self->ext_session->find_one( { digest => $self->session( "digest" ) } ) ) {
+        $team    = $self->team->find_one( { name => $session->{team} } );
         $result  = $team->{answer}{ $problem->{number} }{result};
         $snippet = $team->{answer}{ $problem->{number} }{snippet};
         $tried   = !!$snippet;
@@ -63,7 +42,8 @@ sub answer {
     my $self    = shift;
     my $snippet = $self->req->param( "answer" );
     my $number  = $self->req->param( "number" );
-    my $problem = $self->find_problem( $number );
+    my $problem = $self->problem->find_one( { number => int $number } )
+        or return $self->render_not_found;
     my( $result, $does_correct );
 
     $snippet =~ s{\r\n}{\n}g;
@@ -86,16 +66,19 @@ sub answer {
         warn $e;
     }
 
-    if ( $result eq $problem->{answer} ) {
-        $does_correct = 1;
-    }
+    $does_correct = $result eq $problem->{answer};
 
-    if ( my $session = $self->get_session ) {
-        $self->record(
+    if ( my $session = $self->ext_session->find_one( { digest => $self->session( "digest" ) } ) ) {
+        my $team = $self->team->find_one( { name => $session->{team} } );
+        $team = Data::Team::set_answer(
+            team         => $team,
             problem      => $problem,
             snippet      => $snippet,
             does_correct => $does_correct,
-            team         => Data::Session->get_team( $session ),
+        );
+        $self->team->update(
+            { name => $team->{name} },
+            $team,
         );
     }
 
@@ -105,18 +88,6 @@ sub answer {
         does_correct => $does_correct,
     );
     $self->render( template => "problem/answer" );
-}
-
-sub record {
-    my $self  = shift;
-    my( $problem, $snippet, $result, $team )
-        = @{ { @_ } }{ qw( problem snippet does_correct team ) };
-    @{ $team->{answer}{ $problem->{number} } }{ qw( snippet result ) }
-        = ( $snippet, $result );
-    Data::Team->new->collection->update(
-        { name => $team->{name} },
-        $team,
-    );
 }
 
 1;

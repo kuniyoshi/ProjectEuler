@@ -1,26 +1,21 @@
 package Data::Session;
 use strict;
 use warnings;
-use parent "Data::Base";
-use Digest::MD5 qw( md5_hex );
+use parent "Data";
+use Digest::SHA qw( sha1_base64 );
 use Data::Team;
 
-sub get_digest { md5_hex( join q{::}, { }, @_ ) }
-
-sub collection {
-    my $self = shift;
-    return $self->{_collection} || $self->database->get_collection( "session" );
-}
+sub get_digest { sha1_base64( join q{::}, { }, @_ ) }
 
 sub get_team {
-    my $class   = shift;
-    my $session = shift;
-    my $team    =  Data::Team->new->collection->find_one( { name => $session->{team} } );
+    my( $session, $team_collection ) = @_;
 
-    unless ( $team ) {
-        $team = { name => $session->{team} };
-        Data::Team->new->collection->insert( $team );
-    }
+    my $team = $team_collection->find_one( { name => $session->{team} } );
+    return $team
+        if $team;
+
+    $team = { name => $session->{team} };
+    $team_collection->insert( $team );
 
     return $team;
 }

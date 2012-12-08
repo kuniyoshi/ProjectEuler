@@ -1,7 +1,14 @@
 % layout 'default';
 % title "Welcome";
 
-<h1>Welcome</h1>
+<h2>Teams</h2>
+<ul>
+<% foreach my $team ( @{ $teams } ) { %>
+    <li><a href="<%== url_for $team->{name} %>"><%= $team->{name} %></a></li>
+<% } %>
+</ul>
+
+<h2>New Team</h2>
 <form method="post" action="./" class="form-inline">
     <input type="text" name="team" class="input-small" placeholder="team name" />
     <button type="submit" class="btn">join</button>
@@ -13,3 +20,4 @@
         $form.attr( { action: $form.attr( "action" ) + $form.find( "input[name=team]" ).val( ) } );
     } );
 </script>
+
